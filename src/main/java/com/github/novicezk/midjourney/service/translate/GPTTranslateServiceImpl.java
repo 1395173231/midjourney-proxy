@@ -5,10 +5,7 @@ import cn.hutool.core.text.CharSequenceUtil;
 import com.github.novicezk.midjourney.ProxyProperties;
 import com.github.novicezk.midjourney.service.TranslateService;
 import com.unfbx.chatgpt.OpenAiClient;
-import com.unfbx.chatgpt.entity.chat.ChatChoice;
-import com.unfbx.chatgpt.entity.chat.ChatCompletion;
-import com.unfbx.chatgpt.entity.chat.ChatCompletionResponse;
-import com.unfbx.chatgpt.entity.chat.Message;
+import com.unfbx.chatgpt.entity.chat.*;
 import com.unfbx.chatgpt.function.KeyRandomStrategy;
 import com.unfbx.chatgpt.interceptor.OpenAILogger;
 import com.unfbx.chatgpt.interceptor.OpenAiResponseInterceptor;
@@ -19,6 +16,7 @@ import org.springframework.beans.factory.support.BeanDefinitionValidationExcepti
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -61,10 +59,11 @@ public class GPTTranslateServiceImpl implements TranslateService {
 		if (!containsChinese(prompt)) {
 			return prompt;
 		}
-		Message m1 = Message.builder().role(Message.Role.SYSTEM).content("把中文翻译成英文").build();
-		Message m2 = Message.builder().role(Message.Role.USER).content(prompt).build();
+		List<Message> list = new ArrayList<Message>();
+		Message m2 = Message.builder().role(Message.Role.USER).content("你是一个翻译引擎，请翻译给出的文本为英文，只需要翻译不需要解释。\n```\n"+prompt+"```").build();
+		list.add(m2);
 		ChatCompletion chatCompletion = ChatCompletion.builder()
-				.messages(Arrays.asList(m1, m2))
+				.messages((list))
 				.model(this.openaiConfig.getModel())
 				.temperature(this.openaiConfig.getTemperature())
 				.maxTokens(this.openaiConfig.getMaxTokens())
